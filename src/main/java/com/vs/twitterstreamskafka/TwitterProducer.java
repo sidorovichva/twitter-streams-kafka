@@ -23,11 +23,6 @@ import java.util.logging.Logger;
 public class TwitterProducer implements Runnable {
     private final Logger logger = Logger.getLogger(TwitterProducer.class.getName());
 
-//    private final String consumerKey = "5bx40OGe7nK75ACepmsekWJ9B";
-//    private final String consumerSecret = "m9haJEy4zQNHt86IGx0zR94YSjnkXsFeSUJzol2cg6QXTxXuit";
-//    private final String token = "1427981997302034438-FKIRjhamBO8i36ehbYCvJXXbq34nf9";
-//    private final String secret = "YW7oiY9rG0BvEcgtpW1G7gRyWZVflt5alOPPzNyJ6FGRk";
-
     @Override
     public void run() {
         logger.info("Initialization...");
