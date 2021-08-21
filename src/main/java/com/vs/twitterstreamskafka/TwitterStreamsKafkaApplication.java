@@ -1,5 +1,6 @@
 package com.vs.twitterstreamskafka;
 
+import com.vs.twitterstreamskafka.producers.TwitterProducer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

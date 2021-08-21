@@ -1,4 +1,4 @@
-package com.vs.twitterstreamskafka;
+package com.vs.twitterstreamskafka.producers;
 
 import com.google.common.collect.Lists;
 import com.twitter.hbc.ClientBuilder;
@@ -10,18 +10,27 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
+import com.vs.twitterstreamskafka.configs.AppConfig;
+import com.vs.twitterstreamskafka.configs.KafkaProducerConfig;
+import com.vs.twitterstreamskafka.configs.SecurityConfig;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class TwitterProducer implements Runnable {
     private final Logger logger = Logger.getLogger(TwitterProducer.class.getName());
+
+    private String stringToSearch;
 
     @Override
     public void run() {
@@ -31,7 +40,7 @@ public class TwitterProducer implements Runnable {
         Client client = createTwitterClient(msgQueue);
         client.connect();
 
-        KafkaProducer<String, String> producer = createKafkaProducer();
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(KafkaProducerConfig.getProperties());
 
         while (!client.isDone()) {
             String msg = null;
@@ -59,7 +68,9 @@ public class TwitterProducer implements Runnable {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
 
-        List<String> terms = Lists.newArrayList("kafka");
+        //List<String> terms = Lists.newArrayList("kafka");
+        List<String> terms = Lists.newArrayList(stringToSearch == null ? "kafka" : stringToSearch);
+        System.err.println(terms.get(0) + " = " + stringToSearch);
         hosebirdEndpoint.trackTerms(terms);
 
         Authentication hosebirdAuth = new OAuth1(
@@ -79,13 +90,5 @@ public class TwitterProducer implements Runnable {
         Client hosebirdClient = builder.build();
 
         return hosebirdClient;
-    }
-
-    public KafkaProducer<String, String> createKafkaProducer() {
-        Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.bootstrapServers);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        return new KafkaProducer<>(properties);
     }
 }
