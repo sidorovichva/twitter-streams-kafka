@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "javaType": "com.vs.twitterstreamskafka.models.ExtendedTweet",
+  "properties": {
+    "full_text": {"type":  "string"},
+    "display_text_range": {"type":  "array"},
+    "entities": {"type":  "object", "javaType":  "com.vs.twitterstreamskafka.models.Entities"}
+  }
+}
