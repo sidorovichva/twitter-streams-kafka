@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "javaType": "com.vs.twitterstreamskafka.models.Entities",
+  "properties": {
+    "hashtags": {"type":  "array"},
+    "urls": {"type":  "array"},
+    "user_mentions": {"type":  "array"},
+    "symbols": {"type":  "array"},
+    "symbols": {"type":  "array"}
+  }
+}
