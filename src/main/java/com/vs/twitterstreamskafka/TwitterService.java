@@ -2,17 +2,26 @@ package com.vs.twitterstreamskafka;
 
 import com.vs.twitterstreamskafka.models.UserRequest;
 import com.vs.twitterstreamskafka.producers.TwitterProducer;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.springframework.stereotype.Service;
 
 @Service
-//@RequiredArgsConstructor
+@Data
 public class TwitterService {
-    //private final TwitterProducer producer;
+    private TwitterProducer producer;
+
+    public TwitterService() {
+        this.producer = null;
+    }
 
     public void startNewSearch(UserRequest request) {
-        //producer.run();
+
         System.err.println("Starting search by string: " + request.getTextToSearch());
-        new TwitterProducer(request.getTextToSearch()).run();
+
+        if (producer != null) {
+            producer.stopThread();
+        }
+        producer = new TwitterProducer(request.getTextToSearch());
+        producer.run();
     }
 }

@@ -9,8 +9,8 @@ public class TwitterStreamsKafkaApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(TwitterStreamsKafkaApplication.class, args);
-        TwitterProducer producer = new TwitterProducer();
-        producer.run();
+        //TwitterProducer producer = new TwitterProducer();
+        //producer.run();
     }
 
 }

@@ -13,24 +13,28 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import com.vs.twitterstreamskafka.configs.AppConfig;
 import com.vs.twitterstreamskafka.configs.KafkaProducerConfig;
 import com.vs.twitterstreamskafka.configs.SecurityConfig;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.kafka.clients.producer.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class TwitterProducer implements Runnable {
     private final Logger logger = Logger.getLogger(TwitterProducer.class.getName());
 
     private String stringToSearch;
+    private AtomicBoolean isRunning;
+
+    public TwitterProducer(String stringToSearch) {
+        this.stringToSearch = stringToSearch;
+        this.isRunning = new AtomicBoolean(true);
+    }
 
     @Override
     public void run() {
@@ -42,7 +46,7 @@ public class TwitterProducer implements Runnable {
 
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(KafkaProducerConfig.getProperties());
 
-        while (!client.isDone()) {
+        while (!client.isDone() && isRunning.get()) {
             String msg = null;
             try {
                 msg = msgQueue.poll(3, TimeUnit.SECONDS);
@@ -64,13 +68,20 @@ public class TwitterProducer implements Runnable {
         logger.info("End of application");
     }
 
+    public void stopThread() {
+        isRunning.set(false);
+    }
+
     public Client createTwitterClient(BlockingQueue<String> msgQueue) {
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint hosebirdEndpoint = new StatusesFilterEndpoint();
 
         //List<String> terms = Lists.newArrayList("kafka");
         List<String> terms = Lists.newArrayList(stringToSearch == null ? "kafka" : stringToSearch);
-        System.err.println(terms.get(0) + " = " + stringToSearch);
+        //List<String> terms = new ArrayList<>();
+        //terms.add(stringToSearch == null ? "kafka" : stringToSearch);
+        //System.err.println("Length of terms: " + terms.size());
+        System.err.println("Search query is: " + stringToSearch);
         hosebirdEndpoint.trackTerms(terms);
 
         Authentication hosebirdAuth = new OAuth1(
