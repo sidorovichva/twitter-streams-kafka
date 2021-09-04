@@ -1,0 +1,28 @@
+- Software design
+- Readme.MD
+- Automated tests - testing pipeline
+- Deployment pipeline
+- Configuration - yaml
+- Turn into kafka-streams
+- Simple analytics - Hourly aggregation
+- Advanced analytics use-cases, KSQL
+- Manage with (GitHub) Issues and maybe even pull-request
+
+Next step:
+- Code is separated into TwitterFeed and data pipeline
+- TwitterFeed uses regular (multi-threaded?) producer to "tweets" topic
+- data pipeline is kafka-streams topology/topologies
+- first topology is text-occurrence counter.  It will count all texts requested by users
+- ability to remove text (with api)
+- text-occurrence counter will generate KTABLE with key=text, value=count
+- api to fetch the count per text
+- APIs:
+  - add_search?text=...
+  - remove_search?text=...
+  - get_count?text=...
+  - /{text}/count
+- hourly aggregation KTABLE: key={date+time+text} value=count
+
+
+
+

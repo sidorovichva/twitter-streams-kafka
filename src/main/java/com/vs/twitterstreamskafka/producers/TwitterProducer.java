@@ -15,8 +15,8 @@ import com.vs.twitterstreamskafka.configs.KafkaProducerConfig;
 import com.vs.twitterstreamskafka.configs.SecurityConfig;
 import lombok.Data;
 import org.apache.kafka.clients.producer.*;
+import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 @Data
-public class TwitterProducer implements Runnable {
+public class TwitterProducer extends Thread {
     private final Logger logger = Logger.getLogger(TwitterProducer.class.getName());
 
     private String stringToSearch;
@@ -36,10 +36,12 @@ public class TwitterProducer implements Runnable {
         this.isRunning = new AtomicBoolean(true);
     }
 
-    @Override
-    public void run() {
+    /*@Scheduled(fixedDelayString = "PT3S")
+    public void runner() {
         logger.info("Initialization...");
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>(1000);
+
+
 
         Client client = createTwitterClient(msgQueue);
         client.connect();
@@ -49,7 +51,43 @@ public class TwitterProducer implements Runnable {
         while (!client.isDone() && isRunning.get()) {
             String msg = null;
             try {
-                msg = msgQueue.poll(3, TimeUnit.SECONDS);
+                logger.warning("SENDING...");
+                msg = msgQueue.poll(AppConfig.frequencyInSec, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                client.stop();
+            }
+            if (msg != null) {
+                producer.send(new ProducerRecord<>(AppConfig.topicName, null, msg), new Callback() {
+                    @Override //to catch errors
+                    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                        if (e != null) {
+                            logger.warning("Something bad happened " + e.getMessage());
+                        }
+                    }
+                });
+            } else logger.info("The message is empty");
+        }
+        logger.info("End of application");
+    }*/
+
+    @Override
+    public void run() {
+        logger.info("Initialization...");
+        BlockingQueue<String> msgQueue = new LinkedBlockingQueue<>(1000);
+
+
+
+        Client client = createTwitterClient(msgQueue);
+        client.connect();
+
+        KafkaProducer<String, String> producer = new KafkaProducer<String, String>(KafkaProducerConfig.getProperties());
+
+        while (!client.isDone() && isRunning.get()) {
+            String msg = null;
+            try {
+                logger.warning("SENDING...");
+                msg = msgQueue.poll(AppConfig.frequencyInSec, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 client.stop();

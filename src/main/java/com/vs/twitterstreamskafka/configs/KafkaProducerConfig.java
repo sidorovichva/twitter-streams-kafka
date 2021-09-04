@@ -1,6 +1,7 @@
 package com.vs.twitterstreamskafka.configs;
 
 import com.vs.twitterstreamskafka.configs.AppConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -10,6 +11,7 @@ public class KafkaProducerConfig {
 
     public static Properties getProperties() {
         Properties properties = new Properties();
+        properties.put(ProducerConfig.CLIENT_ID_CONFIG, AppConfig.applicationID);
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfig.bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());

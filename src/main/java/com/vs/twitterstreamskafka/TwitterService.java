@@ -1,5 +1,7 @@
 package com.vs.twitterstreamskafka;
 
+import com.vs.twitterstreamskafka.consumers.TwitterConsumer;
+import com.vs.twitterstreamskafka.consumers.TwitterCounter;
 import com.vs.twitterstreamskafka.models.UserRequest;
 import com.vs.twitterstreamskafka.producers.TwitterProducer;
 import lombok.Data;
@@ -15,13 +17,26 @@ public class TwitterService {
     }
 
     public void startNewSearch(UserRequest request) {
-
         System.err.println("Starting search by string: " + request.getTextToSearch());
 
         if (producer != null) {
             producer.stopThread();
         }
         producer = new TwitterProducer(request.getTextToSearch());
-        producer.run();
+        producer.start();
+
+        new TwitterConsumer().start();
+    }
+
+    public void startNewCount(UserRequest request) {
+        System.err.println("Starting counting by string: " + request.getTextToSearch());
+
+        if (producer != null) {
+            producer.stopThread();
+        }
+        producer = new TwitterProducer(request.getTextToSearch());
+        producer.start();
+
+        new TwitterCounter().start();
     }
 }
